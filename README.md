@@ -2,6 +2,10 @@
 
 Spring Bootのinfoエンドポイントでバージョン情報を表示するサンプルコードです。
 
+## 目的
+
+動作しているSpring Bootアプリのバージョンが何かを外部から確認したい場合がありますが、infoエンドポイントで簡単にバージョン情報などを返すことができます。
+
 ## Mavenプロジェクトを作成
 
 ```
@@ -43,9 +47,11 @@ Spring Bootアプリケーションとして起動するため、`App`クラス�
 
 とりあえず素のSpring Bootアプリケーションとなったので、起動してみます。
 
-`mvn spring-boot:run`
+```
+mvn spring-boot:run
+```
 
-起動が完了したら、`/info`エンドポイントにアクセスしてみます。spring-boot-actuatorが有効になっているので`200 OK`が帰りますが、ボディは空JSONになります。
+起動が完了したら、infoエンドポイントにアクセスしてみます。spring-boot-actuatorが有効になっているので`200 OK`が帰りますが、ボディは空JSONになります。
 
 ```
 $ curl -v http://localhost:8080/info
@@ -62,4 +68,40 @@ $ curl -v http://localhost:8080/info
 < Date: Mon, 25 Jan 2016 08:21:37 GMT
 <
 {}
+```
+
+## 設定ファイルにinfoで返す値を記載する
+
+infoエンドポイントで返す値は、`application.properties`に`info.`で始まるプロパティを記述することで設定できます。`maven-resources-plugin`で`pom.xml`のプロパティで`application.properties`を置換することで、アプリ名やバージョン情報をinfoエンドポイントで返すことが出来ます。
+
+`application.properties`に以下を記載します。
+
+```
+info.name=${project.artifactId}
+info.version=${project.version}
+```
+
+アプリを起動します。
+
+```
+mvn spring-boot:run
+```
+
+先程と同様にinfoエンドポイントにアクセスすると、今度はアプリ名とバージョン情報が返ることが確認できます。
+
+```
+$ curl -v http://localhost:8080/info
+> GET /info HTTP/1.1
+> Host: localhost:8080
+> User-Agent: curl/7.45.0
+> Accept: */*
+>
+< HTTP/1.1 200 OK
+< Server: Apache-Coyote/1.1
+< X-Application-Context: application
+< Content-Type: application/json;charset=UTF-8
+< Transfer-Encoding: chunked
+< Date: Mon, 25 Jan 2016 08:26:15 GMT
+<
+{"name":"sample-display-version","version":"1.0-SNAPSHOT"}
 ```
